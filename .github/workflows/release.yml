@@ -64,6 +64,7 @@ jobs:
         if: steps.check_release.outputs.exists == 'false'
         uses: pnpm/action-setup@v3
         with:
+          package_json_file: source/package.json
           run_install: false
 
       - name: Install Dependencies
