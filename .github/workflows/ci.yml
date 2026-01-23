@@ -31,7 +31,7 @@ jobs:
             - name: Install pnpm
               uses: pnpm/action-setup@v4
               with:
-                  version: 10
+                  # version: 10 # Removed to match package.json
 
             - name: Get pnpm store directory
               shell: bash
@@ -72,7 +72,7 @@ jobs:
             - name: Install pnpm
               uses: pnpm/action-setup@v4
               with:
-                  version: 10
+                  # version: 10 # Removed to match package.json
 
             - name: Get pnpm store directory
               shell: bash
