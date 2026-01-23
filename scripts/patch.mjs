@@ -257,8 +257,7 @@ const filesToDelete = [
     'CONTRIBUTING.md',
     'LICENSE',
     'LICENSE.plus',
-    'BACKERS.md',
-    'AGENTS.md'
+    'BACKERS.md'
 ];
 
 for (const file of filesToDelete) {
