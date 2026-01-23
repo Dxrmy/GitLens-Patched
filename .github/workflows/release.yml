@@ -1,58 +1,97 @@
-name: Build and Release GitLens Patched
+name: Auto-Release Upstream Updates
 
 on:
-  push:
-    tags:
-      - 'v*'
-    branches:
-      - main
+  schedule:
+    - cron: '0 0 * * *' # Check every day at midnight
   workflow_dispatch:
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
+permissions:
+  contents: write
 
+jobs:
+  check-and-release:
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout Helper Scripts
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          sparse-checkout: |
+            scripts/patch.mjs
+            .github/workflows
+          path: helper
+
+      - name: Get Latest Upstream Release
+        id: upstream
+        run: |
+            # Helper function to compare versions
+            get_latest_release() {
+              curl -sL https://api.github.com/repos/gitkraken/vscode-gitlens/releases/latest | jq -r ".tag_name"
+            }
+            
+            UPSTREAM_TAG=$(get_latest_release)
+            echo "Latest upstream: $UPSTREAM_TAG"
+            echo "tag=$UPSTREAM_TAG" >> $GITHUB_OUTPUT
+
+      - name: Check if Release Exists
+        id: check_release
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+            TAG=${{ steps.upstream.outputs.tag }}
+            if gh release view "$TAG" > /dev/null 2>&1; then
+                echo "Release $TAG already exists."
+                echo "exists=true" >> $GITHUB_OUTPUT
+            else
+                echo "Release $TAG does not exist. Proceeding to build."
+                echo "exists=false" >> $GITHUB_OUTPUT
+            fi
+
+      - name: Checkout Upstream Code
+        if: steps.check_release.outputs.exists == 'false'
+        uses: actions/checkout@v4
+        with:
+          repository: gitkraken/vscode-gitlens
+          ref: ${{ steps.upstream.outputs.tag }}
+          path: source
 
       - name: Setup Node.js
+        if: steps.check_release.outputs.exists == 'false'
         uses: actions/setup-node@v4
         with:
           node-version: 22
 
       - name: Install pnpm
+        if: steps.check_release.outputs.exists == 'false'
         uses: pnpm/action-setup@v3
         with:
           version: 10
           run_install: false
 
-      - name: Install dependencies
+      - name: Install Dependencies
+        if: steps.check_release.outputs.exists == 'false'
+        working-directory: source
         run: pnpm install --frozen-lockfile
 
       - name: Apply Patch
-        run: node ./scripts/patch.mjs
+        if: steps.check_release.outputs.exists == 'false'
+        working-directory: source
+        run: |
+            cp ../helper/scripts/patch.mjs ./scripts/patch.mjs
+            node ./scripts/patch.mjs
 
       - name: Build Extension (VSIX)
+        if: steps.check_release.outputs.exists == 'false'
+        working-directory: source
         run: |
             pnpm run package
-            # Verify VSIX creation
             ls -la *.vsix
 
       - name: Create Release
+        if: steps.check_release.outputs.exists == 'false'
         uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: "*.vsix"
-          generate_release_notes: true
-          
-      - name: Upload Artifact (if not a tag)
-        if: "!startsWith(github.ref, 'refs/tags/')"
-        uses: actions/upload-artifact@v4
-        with:
-          name: gitlens-patched
-          path: "*.vsix"
+          name: ${{ steps.upstream.outputs.tag }}
+          tag_name: ${{ steps.upstream.outputs.tag }}
+          files: source/*.vsix
+          body: "Automated build of ${{ steps.upstream.outputs.tag }} with Pro features unlocked."
+          token: ${{ secrets.GITHUB_TOKEN }}
