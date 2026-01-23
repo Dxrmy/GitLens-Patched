@@ -20,6 +20,8 @@ export type {
 	_RequestInfo as RequestInfo,
 };
 
+export type FetchResponse = Response;
+
 export function getProxyAgent(_strictSSL?: boolean): HttpsProxyAgent | undefined {
 	return undefined;
 }

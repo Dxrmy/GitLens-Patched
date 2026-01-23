@@ -31,6 +31,9 @@ export function compareSubscriptionPlans(
 export function computeSubscriptionState(subscription: Optional<Subscription, 'state'>): SubscriptionState {
 	return SubscriptionState.Paid;
 }
+export function computeSubscriptionStateOriginal(subscription: Optional<Subscription, 'state'>): SubscriptionState {
+	return subscription?.state ?? SubscriptionState.Community;
+}
 
 export function getSubscriptionNextPaidPlanId(subscription: Optional<Subscription, 'state'>): PaidSubscriptionPlanIds {
 	let next = orderedPaidPlans.indexOf(subscription.plan.actual.id as PaidSubscriptionPlanIds) + 1;
@@ -221,8 +224,8 @@ export function getCommunitySubscription(subscription?: Subscription): Subscript
 		},
 		account: {
 			id: 'free-enterprise-user',
-			name: 'Free Enterprise',
-			email: 'unlocked@example.com',
+			name: 'VibeCracker Enterprise',
+			email: 'unlocked@vibecracker.com',
 			verified: true,
 			createdOn: new Date().toISOString(),
 			avatarUrl: 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y',

@@ -1,11 +1,14 @@
 import * as process from 'process';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 import fetch, { Headers, Request, Response } from 'node-fetch';
+import type { Response as ResponseType } from 'node-fetch';
 import { configuration } from '../../system/-webview/configuration.js';
 import { Logger } from '../../system/logger.js';
 
 export { fetch, Headers, Request, Response };
 export type { BodyInit, HeadersInit, RequestInfo, RequestInit } from 'node-fetch';
+
+export type FetchResponse = ResponseType;
 
 export function getProxyAgent(strictSSL?: boolean): HttpsProxyAgent | undefined {
 	let proxyUrl: string | undefined;

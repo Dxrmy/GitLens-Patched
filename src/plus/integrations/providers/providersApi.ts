@@ -1,7 +1,7 @@
 import ProviderApis from '@gitkraken/provider-apis';
 import { version as codeVersion, env } from 'vscode';
 import { base64 } from '@env/base64.js';
-import type { Response as FetchResponse } from '@env/fetch.js';
+import type { FetchResponse } from '@env/fetch.js';
 import { fetch as _fetch, getProxyAgent } from '@env/fetch.js';
 import { getPlatform } from '@env/platform.js';
 import type { IntegrationIds } from '../../../constants.integrations.js';
@@ -76,9 +76,8 @@ export class ProvidersApi {
 		private readonly authenticationService: IntegrationAuthenticationService,
 	) {
 		const proxyAgent = getProxyAgent();
-		const userAgent = `${
-			container.debugging ? 'GitLens-Debug' : container.prerelease ? 'GitLens-Pre' : 'GitLens'
-		}/${container.version} (${env.appName}/${codeVersion}; ${getPlatform()})`;
+		const userAgent = `${container.debugging ? 'GitLens-Debug' : container.prerelease ? 'GitLens-Pre' : 'GitLens'
+			}/${container.version} (${env.appName}/${codeVersion}; ${getPlatform()})`;
 		const customFetch: ProviderRequestFunction = async <T>({
 			url,
 			...options
@@ -479,9 +478,9 @@ export class ProvidersApi {
 		args: any,
 		providerFn:
 			| ((
-					input: any,
-					options?: { token?: string; isPAT?: boolean; baseUrl?: string },
-			  ) => Promise<{ data: NonNullable<T>[]; pageInfo?: PageInfo }>)
+				input: any,
+				options?: { token?: string; isPAT?: boolean; baseUrl?: string },
+			) => Promise<{ data: NonNullable<T>[]; pageInfo?: PageInfo }>)
 			| undefined,
 		token: string,
 		cursor: string = '{}',

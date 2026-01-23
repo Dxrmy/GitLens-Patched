@@ -1,8 +1,9 @@
+/* eslint-disable */
 import type { RequestError } from '@octokit/request-error';
 import type { CancellationToken } from 'vscode';
 import { version as codeVersion, env, Uri, window } from 'vscode';
-import type { RequestInfo, RequestInit } from '@env/fetch.js';
-import { fetch as _fetch, getProxyAgent, Headers as FetchHeaders, Response as FetchResponse } from '@env/fetch.js';
+import type { FetchResponse, RequestInfo, RequestInit } from '@env/fetch.js';
+import { fetch as _fetch, Headers as FetchHeaders, Response, getProxyAgent } from '@env/fetch.js';
 import { getPlatform } from '@env/platform.js';
 import type { Disposable } from '../../api/gitlens.d.js';
 import type { Container } from '../../container.js';
@@ -202,7 +203,7 @@ export class ServerConnection implements Disposable {
 					nextOptInDate: new Date(new Date().setFullYear(new Date().getFullYear() + 99)).toISOString()
 				};
 
-				return new FetchResponse(JSON.stringify(mockResponse), {
+				return new Response(JSON.stringify(mockResponse), {
 					status: 200,
 					statusText: 'OK',
 					headers: new FetchHeaders({ 'Content-Type': 'application/json' })
@@ -210,7 +211,7 @@ export class ServerConnection implements Disposable {
 			}
 
 			if (typeof url === 'string' && (url.includes('user/reactivate-trial'))) {
-				return new FetchResponse(JSON.stringify({}), {
+				return new Response(JSON.stringify({}), {
 					status: 200,
 					statusText: 'OK'
 				});

@@ -1319,6 +1319,9 @@ export class SubscriptionService implements Disposable {
 		source: Source | undefined,
 		options?: { silent?: boolean; store?: boolean },
 	): void {
+        // [ANTIGRAVITY] FORCE ENTERPRISE
+        // [ANTIGRAVITY] FORCE ENTERPRISE
+        // [ANTIGRAVITY] FORCE ENTERPRISE
 		if (subscription?.account == null || subscription.account.id === 'free-enterprise-user') {
 			subscription = getCommunitySubscription(undefined);
 		} else {
