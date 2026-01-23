@@ -89,10 +89,14 @@ const subServicePath = path.join(rootDir, 'src/plus/gk/subscriptionService.ts');
 if (fs.existsSync(subServicePath)) {
 	let content = fs.readFileSync(subServicePath, 'utf8');
 	// Regex matches the if condition with any whitespace/indentation
-	const forceEntRegex = /([\t ]*)if\s*\(\s*subscription\?\.account\s*==\s*null\s*\|\|\s*subscription\.account\.id\s*===\s*'free-enterprise-user'\s*\)\s*\{/;
+	const forceEntRegex =
+		/([\t ]*)if\s*\(\s*subscription\?\.account\s*==\s*null\s*\|\|\s*subscription\.account\.id\s*===\s*'free-enterprise-user'\s*\)\s*\{/;
 	if (forceEntRegex.test(content)) {
-		content = content.replace(forceEntRegex, `$1// [ANTIGRAVITY] FORCE ENTERPRISE
-$1if (false) {`);
+		content = content.replace(
+			forceEntRegex,
+			`$1// [ANTIGRAVITY] FORCE ENTERPRISE
+$1if (false) {`,
+		);
 		fs.writeFileSync(subServicePath, content, 'utf8');
 		console.log(`[OK] Applied: Force Enterprise plan in subscriptionService.ts`);
 	} else {
@@ -116,7 +120,7 @@ export type FetchResponse = Response;`,
 	{
 		description: 'Remove Response from type export',
 		search: `export type { BodyInit, HeadersInit, RequestInfo, RequestInit, Response } from 'node-fetch';`,
-		replace: `export type { BodyInit, HeadersInit, RequestInfo, RequestInit, Response } from 'node-fetch';`,
+		replace: `export type { BodyInit, HeadersInit, RequestInfo, RequestInit } from 'node-fetch';`,
 	},
 	// Removed 'Restore Response to type export' block to prevent duplicate identifiers
 ]);
