@@ -1,8 +1,8 @@
 import type { RequestError } from '@octokit/request-error';
 import type { CancellationToken } from 'vscode';
 import { version as codeVersion, env, Uri, window } from 'vscode';
-import type { RequestInfo, RequestInit, Response } from '@env/fetch.js';
-import { fetch as _fetch, getProxyAgent } from '@env/fetch.js';
+import type { RequestInfo, RequestInit } from '@env/fetch.js';
+import { fetch as _fetch, getProxyAgent, Headers as FetchHeaders, Response as FetchResponse } from '@env/fetch.js';
 import { getPlatform } from '@env/platform.js';
 import type { Disposable } from '../../api/gitlens.d.js';
 import type { Container } from '../../container.js';
@@ -45,16 +45,15 @@ export class ServerConnection implements Disposable {
 	constructor(
 		private readonly container: Container,
 		public readonly urls: UrlsProvider,
-	) {}
+	) { }
 
-	dispose(): void {}
+	dispose(): void { }
 
 	@memoize()
 	get userAgent(): string {
 		// TODO@eamodio figure out standardized format/structure for our user agents
-		return `${this.container.debugging ? 'GitLens-Debug' : this.container.prerelease ? 'GitLens-Pre' : 'GitLens'}/${
-			this.container.version
-		} (${env.appName}/${codeVersion}; ${getPlatform()})`;
+		return `${this.container.debugging ? 'GitLens-Debug' : this.container.prerelease ? 'GitLens-Pre' : 'GitLens'}/${this.container.version
+			} (${env.appName}/${codeVersion}; ${getPlatform()})`;
 	}
 
 	@memoize()
@@ -73,7 +72,7 @@ export class ServerConnection implements Disposable {
 			2: false,
 		},
 	})
-	async fetch(url: RequestInfo, init?: RequestInit, options?: FetchOptions): Promise<Response> {
+	async fetch(url: RequestInfo, init?: RequestInit, options?: FetchOptions): Promise<FetchResponse> {
 		const scope = getLogScope();
 
 		if (options?.cancellation?.isCancellationRequested) throw new CancellationError();
@@ -111,12 +110,12 @@ export class ServerConnection implements Disposable {
 	}
 
 	@debug({ args: { 1: false, 2: false } })
-	async fetchGkApi(path: string, init?: RequestInit, options?: GKFetchOptions): Promise<Response> {
+	async fetchGkApi(path: string, init?: RequestInit, options?: GKFetchOptions): Promise<FetchResponse> {
 		return this.gkFetch(this.urls.getGkApiUrl(path), init, options);
 	}
 
 	@debug({ args: { 1: false, 2: false } })
-	async fetchGkConfig(path: string, init?: RequestInit, options?: FetchOptions): Promise<Response> {
+	async fetchGkConfig(path: string, init?: RequestInit, options?: FetchOptions): Promise<FetchResponse> {
 		return this.fetch(this.urls.getGkConfigUrl(path), init, options);
 	}
 
@@ -125,7 +124,7 @@ export class ServerConnection implements Disposable {
 		request: GraphQLRequest,
 		init?: RequestInit,
 		options?: GKFetchOptions,
-	): Promise<Response> {
+	): Promise<FetchResponse> {
 		return this.fetchGkApi(path, { method: 'POST', ...init, body: JSON.stringify(request) }, options);
 	}
 
@@ -156,7 +155,7 @@ export class ServerConnection implements Disposable {
 		return headers;
 	}
 
-	private async gkFetch(url: RequestInfo, init?: RequestInit, options?: GKFetchOptions): Promise<Response> {
+	private async gkFetch(url: RequestInfo, init?: RequestInit, options?: GKFetchOptions): Promise<FetchResponse> {
 		if (this.requestsAreBlocked) {
 			throw new RequestsAreBlockedTemporarilyError();
 		}
@@ -168,6 +167,54 @@ export class ServerConnection implements Disposable {
 				options?.organizationId,
 				init?.headers ? { ...(init?.headers as Record<string, string>) } : undefined,
 			);
+
+			// [ANTIGRAVITY] Mock interception for checkin
+			if (typeof url === 'string' && (url.includes('gitlens/checkin') || url.includes('/user/checkin'))) {
+				const mockResponse = {
+					user: {
+						id: 'mock-user-id',
+						name: 'VibeCracker User',
+						email: 'vibecracker@example.com',
+						status: 'activated',
+						createdDate: new Date().toISOString(),
+						firstGitLensCheckIn: new Date().toISOString(),
+					},
+					licenses: {
+						effectiveLicenses: {
+							'gitlens-standalone-enterprise': {
+								latestStatus: 'active',
+								latestStartDate: new Date().toISOString(),
+								latestEndDate: new Date(new Date().setFullYear(new Date().getFullYear() + 99)).toISOString(),
+								organizationId: 'mock-org-id',
+								reactivationCount: 0
+							}
+						},
+						paidLicenses: {
+							'gitlens-standalone-enterprise': {
+								latestStatus: 'active',
+								latestStartDate: new Date().toISOString(),
+								latestEndDate: new Date(new Date().setFullYear(new Date().getFullYear() + 99)).toISOString(),
+								organizationId: 'mock-org-id',
+								reactivationCount: 0
+							}
+						}
+					},
+					nextOptInDate: new Date(new Date().setFullYear(new Date().getFullYear() + 99)).toISOString()
+				};
+
+				return new FetchResponse(JSON.stringify(mockResponse), {
+					status: 200,
+					statusText: 'OK',
+					headers: new FetchHeaders({ 'Content-Type': 'application/json' })
+				});
+			}
+
+			if (typeof url === 'string' && (url.includes('user/reactivate-trial'))) {
+				return new FetchResponse(JSON.stringify({}), {
+					status: 200,
+					statusText: 'OK'
+				});
+			}
 
 			if (options?.query != null) {
 				if (url instanceof URL) {
@@ -203,7 +250,7 @@ export class ServerConnection implements Disposable {
 		return new RequestRateLimitError(ex, token, resetAt);
 	}
 
-	private async handleGkUnsuccessfulResponse(rsp: Response, scope: LogScope | undefined): Promise<void> {
+	private async handleGkUnsuccessfulResponse(rsp: FetchResponse, scope: LogScope | undefined): Promise<void> {
 		let content;
 		switch (rsp.status) {
 			// Forbidden

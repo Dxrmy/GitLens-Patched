@@ -62,7 +62,7 @@ import { calculateDistribution } from './utils/contributor.utils.js';
 import { getVisibilityCacheKey } from './utils/remote.utils.js';
 
 const emptyArray: readonly any[] = Object.freeze([]);
-const emptyDisposable: Disposable = Object.freeze({ dispose: () => {} });
+const emptyDisposable: Disposable = Object.freeze({ dispose: () => { } });
 
 export type GitProvidersChangeEvent = {
 	readonly added: readonly GitProvider[];
@@ -215,10 +215,10 @@ export class GitProviderService implements Disposable {
 			}),
 			!workspace.isTrusted
 				? workspace.onDidGrantWorkspaceTrust(() => {
-						if (workspace.isTrusted && workspace.workspaceFolders?.length) {
-							void this.discoverRepositories(workspace.workspaceFolders, { force: true });
-						}
-					})
+					if (workspace.isTrusted && workspace.workspaceFolders?.length) {
+						void this.discoverRepositories(workspace.workspaceFolders, { force: true });
+					}
+				})
 				: emptyDisposable,
 			...this.registerCommands(),
 		);
@@ -660,8 +660,7 @@ export class GitProviderService implements Disposable {
 
 			Logger.error(
 				ex,
-				`${provider.descriptor.name} Provider(${
-					provider.descriptor.id
+				`${provider.descriptor.name} Provider(${provider.descriptor.id
 				}) failed discovering repositories in ${folder.uri.toString(true)}`,
 			);
 
@@ -726,89 +725,7 @@ export class GitProviderService implements Disposable {
 		repoPath?: string | Uri,
 	): Promise<FeatureAccess | RepoFeatureAccess> {
 		const subscription = await this.getSubscription();
-
-		if (this.container.telemetry.enabled) {
-			queueMicrotask(() => void this.visibility());
-		}
-
-		const plan = subscription.plan.effective.id;
-		if (isSubscriptionPaidPlan(plan)) {
-			return { allowed: subscription.account?.verified !== false, subscription: { current: subscription } };
-		}
-
-		if (feature != null && (isProFeatureOnAllRepos(feature) || isAdvancedFeature(feature))) {
-			return { allowed: false, subscription: { current: subscription, required: 'pro' } };
-		}
-
-		function getRepoAccess(
-			this: GitProviderService,
-			repoPath: string | Uri,
-			force: boolean = false,
-		): Promise<RepoFeatureAccess> {
-			const { path: cacheKey } = this.getProvider(repoPath);
-
-			let access = force ? undefined : this._accessCacheByRepo.get(cacheKey);
-			if (access == null) {
-				access = this.visibility(repoPath).then(
-					visibility => {
-						if (visibility === 'private') {
-							return {
-								allowed: false,
-								subscription: { current: subscription, required: 'pro' },
-								visibility: visibility,
-							};
-						}
-
-						return {
-							allowed: true,
-							subscription: { current: subscription },
-							visibility: visibility,
-						};
-					},
-					// If there is a failure assume access is allowed
-					() => ({ allowed: true, subscription: { current: subscription } }),
-				);
-
-				this._accessCacheByRepo.set(cacheKey, access);
-			}
-
-			return access;
-		}
-
-		if (repoPath == null) {
-			const repositories = this.openRepositories;
-			if (repositories.length === 0) {
-				return { allowed: false, subscription: { current: subscription } };
-			}
-
-			if (repositories.length === 1) {
-				return getRepoAccess.call(this, repositories[0].path);
-			}
-
-			const visibility = await this.visibility();
-			switch (visibility) {
-				case 'private':
-					return {
-						allowed: false,
-						subscription: { current: subscription, required: 'pro' },
-						visibility: 'private',
-					};
-				case 'mixed':
-					return {
-						allowed: 'mixed',
-						subscription: { current: subscription, required: 'pro' },
-					};
-				default:
-					return {
-						allowed: true,
-						subscription: { current: subscription },
-						visibility: 'public',
-					};
-			}
-		}
-
-		// Pass force = true to bypass the cache and avoid a promise loop (where we used the cached promise we just created to try to resolve itself 🤦)
-		return getRepoAccess.call(this, repoPath, true);
+		return { allowed: true, subscription: { current: subscription } };
 	}
 
 	async ensureAccess(feature: PlusFeatures, repoPath?: string): Promise<void> {
@@ -1577,7 +1494,7 @@ export class GitProviderService implements Disposable {
 					} else {
 						isDirectory = true;
 					}
-				} catch {}
+				} catch { }
 			}
 
 			const key = asRepoComparisonKey(uri);

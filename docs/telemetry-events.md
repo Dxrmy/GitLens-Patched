@@ -23,6 +23,7 @@
   'vscodeUIKind': string,
   'vscodeVersion': string
 
+  'global.account.avatarUrl': string,
   'global.account.createdOn': string,
   'global.account.id': string,
   'global.account.verified': boolean,
@@ -3786,6 +3787,7 @@ void
 
 ```typescript
 {
+  'account.avatarUrl': string,
   'account.createdOn': string,
   'account.id': string,
   'account.verified': boolean,
@@ -3870,9 +3872,11 @@ or
 
 ```typescript
 {
+  'account.avatarUrl': string,
   'account.createdOn': string,
   'account.id': string,
   'account.verified': boolean,
+  'previous.account.avatarUrl': string,
   'previous.account.createdOn': string,
   'previous.account.id': string,
   'previous.account.verified': boolean,

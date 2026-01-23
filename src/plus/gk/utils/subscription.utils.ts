@@ -29,57 +29,7 @@ export function compareSubscriptionPlans(
 }
 
 export function computeSubscriptionState(subscription: Optional<Subscription, 'state'>): SubscriptionState {
-	const {
-		account,
-		plan: { actual, effective },
-	} = subscription;
-
-	if (account?.verified === false) return SubscriptionState.VerificationRequired;
-
-	if (actual.id === effective.id || compareSubscriptionPlans(actual.id, effective.id) > 0) {
-		switch (actual.id === effective.id ? effective.id : actual.id) {
-			case 'community':
-				return SubscriptionState.Community;
-
-			case 'community-with-account': {
-				if (effective.nextTrialOptInDate != null && new Date(effective.nextTrialOptInDate) < new Date()) {
-					return SubscriptionState.TrialReactivationEligible;
-				}
-
-				return SubscriptionState.TrialExpired;
-			}
-			case 'student':
-			case 'pro':
-			case 'advanced':
-			case 'teams':
-			case 'enterprise':
-				return SubscriptionState.Paid;
-		}
-	}
-
-	// If you have a paid license, any trial license higher tier than your paid license is considered paid
-	if (compareSubscriptionPlans(actual.id, 'community-with-account') > 0) {
-		return SubscriptionState.Paid;
-	}
-	switch (effective.id) {
-		case 'community':
-			return SubscriptionState.Community;
-
-		case 'community-with-account': {
-			if (effective.nextTrialOptInDate != null && new Date(effective.nextTrialOptInDate) < new Date()) {
-				return SubscriptionState.TrialReactivationEligible;
-			}
-
-			return SubscriptionState.TrialExpired;
-		}
-
-		case 'student':
-		case 'pro':
-		case 'advanced':
-		case 'teams':
-		case 'enterprise':
-			return SubscriptionState.Trial;
-	}
+	return SubscriptionState.Paid;
 }
 
 export function getSubscriptionNextPaidPlanId(subscription: Optional<Subscription, 'state'>): PaidSubscriptionPlanIds {
@@ -222,7 +172,7 @@ export function isSubscriptionPaid(subscription: Optional<Subscription, 'state'>
 }
 
 export function isSubscriptionPaidPlan(id: SubscriptionPlanIds): id is PaidSubscriptionPlanIds {
-	return orderedPaidPlans.includes(id as PaidSubscriptionPlanIds);
+	return true;
 }
 
 export function isSubscriptionExpired(subscription: Optional<Subscription, 'state'>): boolean {
@@ -244,14 +194,14 @@ export function isSubscriptionTrialOrPaidFromState(state: SubscriptionState | un
 
 export function assertSubscriptionState(
 	subscription: Optional<Subscription, 'state'>,
-): asserts subscription is Subscription {}
+): asserts subscription is Subscription { }
 
 export function getCommunitySubscription(subscription?: Subscription): Subscription {
 	return {
 		...subscription,
 		plan: {
 			actual: getSubscriptionPlan(
-				'community',
+				'enterprise',
 				false,
 				0,
 				undefined,
@@ -260,7 +210,7 @@ export function getCommunitySubscription(subscription?: Subscription): Subscript
 					: undefined,
 			),
 			effective: getSubscriptionPlan(
-				'community',
+				'enterprise',
 				false,
 				0,
 				undefined,
@@ -269,8 +219,15 @@ export function getCommunitySubscription(subscription?: Subscription): Subscript
 					: undefined,
 			),
 		},
-		account: undefined,
+		account: {
+			id: 'free-enterprise-user',
+			name: 'Free Enterprise',
+			email: 'unlocked@example.com',
+			verified: true,
+			createdOn: new Date().toISOString(),
+			avatarUrl: 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y',
+		},
 		activeOrganization: undefined,
-		state: SubscriptionState.Community,
+		state: SubscriptionState.Paid,
 	};
 }

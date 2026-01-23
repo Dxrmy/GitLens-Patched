@@ -1,5 +1,5 @@
-const fetch = globalThis.fetch;
-export { fetch, fetch as insecureFetch };
+const { fetch, Response, Headers, Request } = globalThis;
+export { fetch, fetch as insecureFetch, Response, Headers, Request };
 import type { HttpsProxyAgent } from 'https-proxy-agent';
 
 declare global {
@@ -17,7 +17,6 @@ export type {
 	_BodyInit as BodyInit,
 	_HeadersInit as HeadersInit,
 	_RequestInit as RequestInit,
-	_Response as Response,
 	_RequestInfo as RequestInfo,
 };
 
