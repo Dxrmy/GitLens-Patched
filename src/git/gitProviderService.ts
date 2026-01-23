@@ -62,7 +62,7 @@ import { calculateDistribution } from './utils/contributor.utils.js';
 import { getVisibilityCacheKey } from './utils/remote.utils.js';
 
 const emptyArray: readonly any[] = Object.freeze([]);
-const emptyDisposable: Disposable = Object.freeze({ dispose: () => { } });
+const emptyDisposable: Disposable = Object.freeze({ dispose: () => {} });
 
 export type GitProvidersChangeEvent = {
 	readonly added: readonly GitProvider[];
@@ -215,10 +215,10 @@ export class GitProviderService implements Disposable {
 			}),
 			!workspace.isTrusted
 				? workspace.onDidGrantWorkspaceTrust(() => {
-					if (workspace.isTrusted && workspace.workspaceFolders?.length) {
-						void this.discoverRepositories(workspace.workspaceFolders, { force: true });
-					}
-				})
+						if (workspace.isTrusted && workspace.workspaceFolders?.length) {
+							void this.discoverRepositories(workspace.workspaceFolders, { force: true });
+						}
+					})
 				: emptyDisposable,
 			...this.registerCommands(),
 		);
@@ -660,7 +660,8 @@ export class GitProviderService implements Disposable {
 
 			Logger.error(
 				ex,
-				`${provider.descriptor.name} Provider(${provider.descriptor.id
+				`${provider.descriptor.name} Provider(${
+					provider.descriptor.id
 				}) failed discovering repositories in ${folder.uri.toString(true)}`,
 			);
 
@@ -1494,7 +1495,7 @@ export class GitProviderService implements Disposable {
 					} else {
 						isDirectory = true;
 					}
-				} catch { }
+				} catch {}
 			}
 
 			const key = asRepoComparisonKey(uri);

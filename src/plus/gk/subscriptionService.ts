@@ -225,9 +225,9 @@ export class SubscriptionService implements Disposable {
 
 				let savedFeaturePreviewOverrides:
 					| {
-						getFn: SubscriptionService['getStoredFeaturePreview'] | undefined;
-						setFn: SubscriptionService['storeFeaturePreview'] | undefined;
-					}
+							getFn: SubscriptionService['getStoredFeaturePreview'] | undefined;
+							setFn: SubscriptionService['storeFeaturePreview'] | undefined;
+					  }
 					| undefined;
 
 				m.registerAccountDebug(this.container, {
@@ -503,7 +503,8 @@ export class SubscriptionService implements Disposable {
 			const learn: MessageItem = { title: 'Learn More' };
 			const confirm: MessageItem = { title: 'Continue', isCloseAffordance: true };
 			const result = await window.showInformationMessage(
-				`Welcome to your ${effective.name} Trial.\n\nYou now have full access to all GitLens Pro features for ${days < 1 ? '<1 more day' : pluralize('day', days, { infix: ' more ' })
+				`Welcome to your ${effective.name} Trial.\n\nYou now have full access to all GitLens Pro features for ${
+					days < 1 ? '<1 more day' : pluralize('day', days, { infix: ' more ' })
 				}.`,
 				{
 					modal: true,
@@ -840,20 +841,20 @@ export class SubscriptionService implements Disposable {
 
 		using telemetry = this.container.telemetry.enabled
 			? createDisposable(
-				() => {
-					this.container.telemetry.sendEvent(
-						'subscription/action',
-						{
-							action: 'upgrade',
-							aborted: aborted,
-							'promo.key': promo?.key,
-							'promo.code': promo?.code,
-						},
-						source,
-					);
-				},
-				{ once: true },
-			)
+					() => {
+						this.container.telemetry.sendEvent(
+							'subscription/action',
+							{
+								action: 'upgrade',
+								aborted: aborted,
+								'promo.key': promo?.key,
+								'promo.code': promo?.code,
+							},
+							source,
+						);
+					},
+					{ once: true },
+				)
 			: undefined;
 
 		const hasAccount = this._subscription.account != null;
@@ -869,7 +870,7 @@ export class SubscriptionService implements Disposable {
 						return true;
 					}
 				}
-			} catch { }
+			} catch {}
 		}
 
 		const query = new URLSearchParams();
@@ -1280,7 +1281,8 @@ export class SubscriptionService implements Disposable {
 						queueMicrotask(async () => {
 							const confirm: MessageItem = { title: 'Retry Sign In' };
 							const result = await window.showErrorMessage(
-								`Unable to sign in to your (${name}) account. Please try again. If this issue persists, please contact support.${unauthorized ? '' : ` Error=${ex.message}`
+								`Unable to sign in to your (${name}) account. Please try again. If this issue persists, please contact support.${
+									unauthorized ? '' : ` Error=${ex.message}`
 								}`,
 								confirm,
 							);
@@ -1319,9 +1321,9 @@ export class SubscriptionService implements Disposable {
 		source: Source | undefined,
 		options?: { silent?: boolean; store?: boolean },
 	): void {
-        // [ANTIGRAVITY] FORCE ENTERPRISE
-        // [ANTIGRAVITY] FORCE ENTERPRISE
-        // [ANTIGRAVITY] FORCE ENTERPRISE
+		// [ANTIGRAVITY] FORCE ENTERPRISE
+		// [ANTIGRAVITY] FORCE ENTERPRISE
+		// [ANTIGRAVITY] FORCE ENTERPRISE
 		if (subscription?.account == null || subscription.account.id === 'free-enterprise-user') {
 			subscription = getCommunitySubscription(undefined);
 		} else {
@@ -1537,8 +1539,9 @@ export class SubscriptionService implements Disposable {
 		} else {
 			let tooltip;
 			if (trialEligible) {
-				tooltip = `**GitLens Pro — reactivate your Pro trial**\n\nExperience full access to all the [new Pro features](${urls.releaseNotes
-					}) — free for another ${pluralize('day', proTrialLengthInDays)}.`;
+				tooltip = `**GitLens Pro — reactivate your Pro trial**\n\nExperience full access to all the [new Pro features](${
+					urls.releaseNotes
+				}) — free for another ${pluralize('day', proTrialLengthInDays)}.`;
 			} else if (trial) {
 				const remaining = getSubscriptionTimeRemaining(this._subscription, 'days') ?? 0;
 				tooltip = `**GitLens Pro — trial**\n\nYou now have full access to all GitLens Pro features for ${pluralize(

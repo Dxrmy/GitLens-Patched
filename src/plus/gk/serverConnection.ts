@@ -46,15 +46,16 @@ export class ServerConnection implements Disposable {
 	constructor(
 		private readonly container: Container,
 		public readonly urls: UrlsProvider,
-	) { }
+	) {}
 
-	dispose(): void { }
+	dispose(): void {}
 
 	@memoize()
 	get userAgent(): string {
 		// TODO@eamodio figure out standardized format/structure for our user agents
-		return `${this.container.debugging ? 'GitLens-Debug' : this.container.prerelease ? 'GitLens-Pre' : 'GitLens'}/${this.container.version
-			} (${env.appName}/${codeVersion}; ${getPlatform()})`;
+		return `${this.container.debugging ? 'GitLens-Debug' : this.container.prerelease ? 'GitLens-Pre' : 'GitLens'}/${
+			this.container.version
+		} (${env.appName}/${codeVersion}; ${getPlatform()})`;
 	}
 
 	@memoize()
@@ -185,35 +186,39 @@ export class ServerConnection implements Disposable {
 							'gitlens-standalone-enterprise': {
 								latestStatus: 'active',
 								latestStartDate: new Date().toISOString(),
-								latestEndDate: new Date(new Date().setFullYear(new Date().getFullYear() + 99)).toISOString(),
+								latestEndDate: new Date(
+									new Date().setFullYear(new Date().getFullYear() + 99),
+								).toISOString(),
 								organizationId: 'mock-org-id',
-								reactivationCount: 0
-							}
+								reactivationCount: 0,
+							},
 						},
 						paidLicenses: {
 							'gitlens-standalone-enterprise': {
 								latestStatus: 'active',
 								latestStartDate: new Date().toISOString(),
-								latestEndDate: new Date(new Date().setFullYear(new Date().getFullYear() + 99)).toISOString(),
+								latestEndDate: new Date(
+									new Date().setFullYear(new Date().getFullYear() + 99),
+								).toISOString(),
 								organizationId: 'mock-org-id',
-								reactivationCount: 0
-							}
-						}
+								reactivationCount: 0,
+							},
+						},
 					},
-					nextOptInDate: new Date(new Date().setFullYear(new Date().getFullYear() + 99)).toISOString()
+					nextOptInDate: new Date(new Date().setFullYear(new Date().getFullYear() + 99)).toISOString(),
 				};
 
 				return new Response(JSON.stringify(mockResponse), {
 					status: 200,
 					statusText: 'OK',
-					headers: new FetchHeaders({ 'Content-Type': 'application/json' })
+					headers: new FetchHeaders({ 'Content-Type': 'application/json' }),
 				});
 			}
 
-			if (typeof url === 'string' && (url.includes('user/reactivate-trial'))) {
+			if (typeof url === 'string' && url.includes('user/reactivate-trial')) {
 				return new Response(JSON.stringify({}), {
 					status: 200,
-					statusText: 'OK'
+					statusText: 'OK',
 				});
 			}
 

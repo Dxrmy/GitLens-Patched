@@ -197,7 +197,7 @@ export function isSubscriptionTrialOrPaidFromState(state: SubscriptionState | un
 
 export function assertSubscriptionState(
 	subscription: Optional<Subscription, 'state'>,
-): asserts subscription is Subscription { }
+): asserts subscription is Subscription {}
 
 export function getCommunitySubscription(subscription?: Subscription): Subscription {
 	return {

@@ -76,8 +76,9 @@ export class ProvidersApi {
 		private readonly authenticationService: IntegrationAuthenticationService,
 	) {
 		const proxyAgent = getProxyAgent();
-		const userAgent = `${container.debugging ? 'GitLens-Debug' : container.prerelease ? 'GitLens-Pre' : 'GitLens'
-			}/${container.version} (${env.appName}/${codeVersion}; ${getPlatform()})`;
+		const userAgent = `${
+			container.debugging ? 'GitLens-Debug' : container.prerelease ? 'GitLens-Pre' : 'GitLens'
+		}/${container.version} (${env.appName}/${codeVersion}; ${getPlatform()})`;
 		const customFetch: ProviderRequestFunction = async <T>({
 			url,
 			...options
@@ -478,9 +479,9 @@ export class ProvidersApi {
 		args: any,
 		providerFn:
 			| ((
-				input: any,
-				options?: { token?: string; isPAT?: boolean; baseUrl?: string },
-			) => Promise<{ data: NonNullable<T>[]; pageInfo?: PageInfo }>)
+					input: any,
+					options?: { token?: string; isPAT?: boolean; baseUrl?: string },
+			  ) => Promise<{ data: NonNullable<T>[]; pageInfo?: PageInfo }>)
 			| undefined,
 		token: string,
 		cursor: string = '{}',

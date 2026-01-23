@@ -626,9 +626,9 @@ export class IntegrationService implements Disposable {
 				for (const integrationId of hostingIntegrationIds?.length
 					? hostingIntegrationIds
 					: [
-						...Object.values(GitCloudHostIntegrationId),
-						...Object.values(GitSelfManagedHostIntegrationId),
-					]) {
+							...Object.values(GitCloudHostIntegrationId),
+							...Object.values(GitSelfManagedHostIntegrationId),
+						]) {
 					if (
 						remoteIntegration.id === integrationId &&
 						remote.provider?.owner != null &&
@@ -651,10 +651,10 @@ export class IntegrationService implements Disposable {
 		for (const integrationId of integrationIds?.length
 			? integrationIds
 			: [
-				...Object.values(GitCloudHostIntegrationId),
-				...Object.values(IssuesCloudHostIntegrationId),
-				...Object.values(GitSelfManagedHostIntegrationId),
-			]) {
+					...Object.values(GitCloudHostIntegrationId),
+					...Object.values(IssuesCloudHostIntegrationId),
+					...Object.values(GitSelfManagedHostIntegrationId),
+				]) {
 			const integration = await this.get(integrationId);
 			const isInvalidIntegration =
 				(options?.openRepositoriesOnly &&
@@ -767,7 +767,7 @@ export class IntegrationService implements Disposable {
 			let integration;
 			try {
 				integration = await this.get(integrationId);
-			} catch { }
+			} catch {}
 			if (integration == null) continue;
 
 			integrations.set(integration, undefined);

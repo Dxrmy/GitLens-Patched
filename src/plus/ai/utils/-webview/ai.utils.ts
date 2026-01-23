@@ -124,10 +124,11 @@ export async function getOrPromptApiKey(
 			input.password = true;
 			input.title = `Connect to ${provider.name}`;
 			input.placeholder = `Please enter your ${provider.name} API key to use this feature`;
-			input.prompt = `Enter your ${provider.url
+			input.prompt = `Enter your ${
+				provider.url
 					? `[${provider.name} API Key](${provider.url} "Get your ${provider.name} API key")`
 					: `${provider.name} API Key`
-				}`;
+			}`;
 			if (provider.url) {
 				input.buttons = [infoButton];
 			}
@@ -166,11 +167,7 @@ export function getValidatedTemperature(model: AIModel, modelTemperature?: numbe
  * @param estimatedTokens - Optional: estimated tokens in the prompt (if known)
  * @returns New max input tokens value
  */
-export function getReducedMaxInputTokens(
-	maxInputTokens: number,
-	retryCount: number,
-	estimatedTokens?: number,
-): number {
+export function getReducedMaxInputTokens(maxInputTokens: number, retryCount: number, estimatedTokens?: number): number {
 	// If we know the estimated tokens, calculate reduction based on overage
 	if (estimatedTokens != null && estimatedTokens > maxInputTokens) {
 		const overageRatio = estimatedTokens / maxInputTokens;
@@ -322,18 +319,18 @@ export function getAIResultContext(result: AIResponse<any>): AIResultContext {
 		usage:
 			result.usage != null
 				? {
-					promptTokens: result.usage.promptTokens,
-					completionTokens: result.usage.completionTokens,
-					totalTokens: result.usage.totalTokens,
-					limits:
-						result.usage.limits != null
-							? {
-								used: result.usage.limits.used,
-								limit: result.usage.limits.limit,
-								resetsOn: result.usage.limits.resetsOn.toISOString(),
-							}
-							: undefined,
-				}
+						promptTokens: result.usage.promptTokens,
+						completionTokens: result.usage.completionTokens,
+						totalTokens: result.usage.totalTokens,
+						limits:
+							result.usage.limits != null
+								? {
+										used: result.usage.limits.used,
+										limit: result.usage.limits.limit,
+										resetsOn: result.usage.limits.resetsOn.toISOString(),
+									}
+								: undefined,
+					}
 				: undefined,
 	};
 }
