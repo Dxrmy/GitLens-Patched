@@ -92,7 +92,9 @@ if (fs.existsSync(subServicePath)) {
 	// This allows us to inject our logic at the start of changeSubscription regardless of indentation
 	const forceEntRegex = /([\t ]*)if\s*\(\s*subscription\s*==\s*null\s*\)\s*\{/;
 	if (forceEntRegex.test(content)) {
-		content = content.replace(forceEntRegex, `$1// [ANTIGRAVITY] FORCE ENTERPRISE
+		content = content.replace(
+			forceEntRegex,
+			`$1// [ANTIGRAVITY] FORCE ENTERPRISE
 $1if (subscription?.account == null || subscription.account.id === 'free-enterprise-user') {
 $1    subscription = getCommunitySubscription(undefined);
 $1} else {
@@ -103,7 +105,8 @@ $1    };
 $1    subscription.state = SubscriptionState.Paid;
 $1}
 $1
-$1if (subscription == null) {`);
+$1if (subscription == null) {`,
+		);
 		fs.writeFileSync(subServicePath, content, 'utf8');
 		console.log(`[OK] Applied: Force Enterprise plan in subscriptionService.ts`);
 	} else {

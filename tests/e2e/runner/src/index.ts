@@ -41,10 +41,9 @@ async function handleInvoke(body: InvokeRequest): Promise<InvokeResponse> {
 
 function readBody(req: IncomingMessage): Promise<string> {
 	return new Promise((resolve, reject) => {
-		let data = '';
-		// eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-		req.on('data', chunk => (data += chunk));
-		req.on('end', () => resolve(data));
+		const chunks: Buffer[] = [];
+		req.on('data', chunk => chunks.push(chunk));
+		req.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
 		req.on('error', reject);
 	});
 }
